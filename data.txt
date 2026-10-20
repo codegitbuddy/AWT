@@ -1,0 +1,568 @@
+Practical 1A
+<?php 
+$result="";
+$error="";
+
+if($_SERVER["REQUEST_METHOD"]=="POST")
+{
+	$num1=$_POST["num1"] ?? "";
+	$num2=$_POST["num2"] ?? "";
+	$operations=$_POST["operations"] ?? "";
+	
+	if(!is_numeric($num1) || !is_numeric($num2))
+	{
+		$error="Please Enter a Valid Number";
+	}
+	else
+	{
+		$num1= (float) $num1;
+		$num2= (float) $num2;
+		switch ($operations)
+		{
+			case "add":
+				$result= $num1 + $num2;
+				break;
+			case "sub":
+				$result= $num1 - $num2;
+				break;
+			case "prod":
+				$result= $num1 * $num2;
+				break;
+			case "div":
+				if($num2 == 0){
+					$error= "Zero Divison Not Possible";
+				}
+				else{
+					$result= $num1 + $num2;
+					break;
+				}
+			default:
+				$error="Error";
+				break;
+		} 
+	}
+}
+
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Calculator</title>
+</head>
+<body>
+<h1>Arithematic Calculator</h1>
+<form method="POST">
+<label>Enter a Number 1: </label>
+<input type="number" name="num1" REQUIRED><br>
+<label>Enter a Number 2: </label>
+<input type="number" name="num2" REQUIRED><br><br>
+<label>Operations</label>
+<select name="operations" REQUIRED>
+<option value="">--Select--</option>
+<option value="add">Add</option>
+<option value="sub">Sub</option>
+<option value="prod">Multiply</option>
+<option value="div">Division</option>
+</select>
+<button type="submit">Calculate</button>
+</form>
+<?php 
+if ($error !=""){
+	echo $error;
+}
+else
+{
+	echo "Result: ". $result;
+}
+?>
+
+
+</body>
+</html>
+
+Practical 1B
+<?php 
+
+$message="";
+if($_SERVER["REQUEST_METHOD"]=="POST")
+{
+	$num = $_POST["num"] ?? "";
+	if(is_numeric($num)){
+		$num = (int) $num;
+		if ($num<0)
+		{
+			$sign="Negative";
+		}
+		elseif ($num>0)
+		{
+			$sign= "Positive";
+		}
+		else 
+		{
+			$sign= "zero";
+		}
+		
+		if($num%2==0)
+		{
+			$type= "Even";
+		}
+		else 
+		{
+			$type= "Odd";
+		}
+		
+		$square= $num * $num;
+		$message= "The Number $num is $sign, $type and the square is $square";
+	}
+	else
+	{
+		$message= "Enter a Valid Number";
+	}
+}
+?>
+
+<!DOCTYPE html> 
+<html> 
+<head> 
+<title>Practical 1B- Number Checker</title> 
+</head>  
+<body> 
+<h2>Number Checker</h2> 
+<form method="post"> 
+<label>Enter a Whole Number:</label> 
+<input type="number" name="num" required> 
+<button type="submit">Check Number</button> 
+</form> 
+<?php
+if ($message != "") {
+    echo "<p><b>$message</b></p>";
+}
+?>
+</body> 
+</html> 
+
+Practical 2A
+<?php 
+
+$filename=__DIR__."/data.txt";
+$content="";
+
+if (file_exists($filename))
+{
+	$content= file_get_contents($filename);
+}
+else
+{
+	$content= "No File Found";
+}
+?>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>File</title>
+</head>
+<body>
+<h1>File Contents</h1>
+<?php echo $content ?>
+</body>
+</html>
+
+Practical 2B
+<?php 
+
+$filename=__DIR__."/data.txt";
+$message="";
+if($_SERVER["REQUEST_METHOD"]=="POST")
+{
+	$newData=trim($_POST['newData'] ?? "");
+	if ($newData=="")
+	{
+		$message="Enter The content to append";
+	}
+	else
+	{
+		$line= $newData. PHP_EOL;
+		$written= file_put_contents($filename, $line, FILE_APPEND);
+		if ($written==False)
+		{
+			$message="File Content Failed to Append";
+		}
+		else
+		{
+			$message="File Content Appended Successfully";
+		}
+	}
+}
+$content=file_exists($filename) ? file_get_contents($filename) : "No File Found";
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>File Append</title>
+</head>
+<body>
+<h1> File Content</h1>
+<form method="POST">
+<label>Enter: </label>
+<input type="text" name="newData">
+<button type="submit">Add to file</button>
+</form><br>
+<?php echo $message; ?><br>
+<h3>Current File Contents</h3>
+<?php echo nl2br($content); ?>
+</body>
+</html>
+
+Practical 3A
+Employee.php
+<?php
+require_once __DIR__ . "/Person.php";
+require_once __DIR__ . "/EmployeeInterface.php";
+
+class Employee extends Person implements EmployeeInterface
+{
+	private int $employeeId;
+	private string $department;
+	
+	public function __construct(int $employeeId, string $name, string $department)
+	{
+		parent::__construct($name);
+		$this->employeeId = $employeeId;
+		$this->department = $department;
+	}
+	
+	public function getDetails(): string
+	{
+		return "Employee ID: {$this->employeeId}, Name: {$this->name}, Department: {$this->department}";
+	}	
+}
+
+EmployeeInterface.php
+<?php
+interface EmployeeInterface
+{
+	public function getDetails(): string;
+}
+
+index.php
+<?php 
+require_once __DIR__ . "/Employee.php";
+
+$employee1 = new Employee(101, "Shivam Bhilare", "DS");
+$employee2 = new Employee(102, "Karthik Vinod", "CS");
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Practical 3A - PHP OOP</title>
+</head>
+<body>
+	<h2>Employee Details Using PHP OOP</h2>
+	
+	<p><?php echo htmlspecialchars($employee1->getDetails()); ?></p>
+	<p><?php echo htmlspecialchars($employee2->getDetails()); ?></p>
+</body>
+</html>
+
+Person.php
+<?php
+class Person
+{
+	protected string $name;
+	
+	public function __construct(string $name)
+	{
+		$this->name=$name;
+	}
+	
+	public function getName() : string
+	{
+		return $this->name;
+	}
+}
+
+Practical 3B
+Employee.php
+<?php
+class Employee
+{
+	public int $id;
+	public string $name;
+	public string $department;
+	public float $salary;
+	
+	public function __construct(int $id, string $name, string $department, float $salary)
+	{
+		$this->id = $id;
+		$this->name = $name;
+		$this->department = $department;
+		$this->salary = $salary;
+	}
+	
+	public function toArray(): array
+	{
+		return [
+			"id"=> $this->id,
+			"name"=> $this->name,
+			"department" => $this->department,
+			"salary" => $this->salary
+		];
+	}
+}
+
+?>
+
+EmployeeManager.php
+<?php 
+require_once __DIR__ . "/Employee.php";
+
+class EmployeeManager
+{
+	private string $fileName;
+	
+	public function __construct(string $fileName)
+	{
+		$this->fileName = $fileName;
+		
+		if(!file_exists($this->fileName)){
+			file_put_contents($this->fileName, "[]");
+		}
+	}
+	
+	public function getAll(): array 
+	{
+		$json = file_get_contents($this->fileName);
+		$employees = json_decode($json ?: "[]", true);
+		return is_array($employees) ? $employees : [];
+	}
+	
+	private function saveAll(array $employees): void 
+	{
+		file_put_contents($this->fileName, json_encode($employees, JSON_PRETTY_PRINT),LOCK_EX);
+	}
+	
+	public function add(Employee $employee): bool
+	{
+		$employees = $this->getAll();
+		
+		foreach ($employees as $item) {
+			if ((int) $item["id"] === $employee->id){
+				return false;
+			}
+		}
+		$employees[] = $employee->toArray();
+		$this->saveAll($employees);
+		return true;		
+	}
+	
+	public function update(Employee $employee): bool
+	{
+		$employees=$this->getAll();
+		
+		foreach ($employees as $index => $item){
+			if ((int) $item["id"] === $employee->id){
+				$employees[$index] = $employee->toArray();
+				$this->saveAll($employees);
+				return true;
+			}
+		}
+		return false;
+	}
+}
+?>
+
+employees.json
+[ ]
+
+index.php
+<?php 
+require_once __DIR__ . "/EmployeeManager.php";
+
+$manager = new EmployeeManager(__DIR__ . "/employees.json");
+$message = "";
+
+if($_SERVER["REQUEST_METHOD"] === "POST"){
+	$id = (int) ($_POST["id"] ?? 0);
+	$name = trim($_POST["name"] ?? "");
+	$department = trim($_POST["department"] ?? "");
+	$salary = (float) ($_POST["salary"] ?? 0);
+	$action = $_POST["action"] ?? "";
+	
+	if($id <= 0 || $name === "" || $department === "" || $salary < 0) {
+		$message = "Please Enter a Valid Detail";
+	}else{
+		$employee = new Employee($id, $name, $department, $salary);
+		
+		if ($action === "add") {
+			$message = $manager->add($employee) ? "Employee Added Successfully": "EMployee ID Already Exists";
+		} elseif($action === "update") {
+			$message= $manager->update($employee) ? "Employee Updated Successfully": "Employee ID Not Found";
+		}
+	}
+}
+$employees = $manager->getAll();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Practical 3B</title>
+</head>
+<body>
+	<h2>Employee MS</h2>
+	<form method="post">
+		<input type="number" name="id" placeholder="Employee ID" required>
+		<input type="text" name="name" placeholder="Name" required>
+		<input type="text" name="department" placeholder="Department" required>
+		<input type="number" step="0.1" name="salary" placeholder="Salary" required>
+	<br>
+	<button type="submit" name="action" value="add">Add Employee</button>
+	<button type="submit" name="action" value="update">Update Employee</button>
+	</form>
+	<?php if ($message!== ""): ?>
+		<p><strong><?php echo htmlspecialchars($message); ?></strong></p>
+	<?php endif; ?>
+	
+	<h3>Employee List</h3>
+	<table border="1">
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Department</th>
+			<th>Salary</th>
+		</tr>
+		<?php if (count($employees) === 0): ?>
+			<tr>
+				<td colspan="4">No Employees Added Yet</td>
+			</tr>
+		<?php else: ?>
+			<?php foreach($employees as $employee): ?>
+			<tr>
+				<td><?php echo (int) $employee >["id"]; ?></td>
+				<td><?php echo htmlspecialchars($employee["name"]); ?></td>
+				<td><?php echo htmlspecialchars($employee["department"]); ?></td>
+				<td><?php echo number_format((float) $employee["salary"], 2); ?></td>
+			</tr>
+			<?php endforeach; ?>
+			<?php endif; ?>
+	</table>
+</body>
+</html>
+
+
+Practical 4
+dashboard.php
+<?php
+session_start();
+if(!isset($_SESSION['user'])) { 
+	header("Location: login.php"); 
+	exit; 
+}
+?>
+<h2>Welcome to the Dashboard</h2>
+<p>Hello, <b><?php echo $_SESSION['user']; ?></b>.</p>
+<p>Login Time: <?php echo $_SESSION['time'] ?? 'Restored via Cookie'; ?></p>
+<a href="logout.php">Logout and Remove Remember Cookie</a>
+
+logout.php
+<?php
+session_start();
+session_destroy();
+setcookie('rem_user', '', time() - 3600, "/");
+header("Location: login.php");
+?>
+
+login.php
+<?php
+session_start();
+// Auto-login if cookie exists
+if(isset($_COOKIE['rem_user'])) $_SESSION['user'] = $_COOKIE['rem_user'];
+if(isset($_SESSION['user'])) { 
+	header("Location: dashboard.php"); 
+	exit; 
+}
+
+if(isset($_POST['login'])) {
+    if($_POST['user'] == 'student' && $_POST['pass'] == '12345') {
+        $_SESSION['user'] = $_POST['user'];
+        $_SESSION['time'] = date("d-m-Y H:i:s");
+        
+        if(isset($_POST['remember'])) {
+            setcookie('rem_user', 'student', time() + (7 * 86400), "/");
+        }
+        header("Location: dashboard.php"); 
+		exit;
+    } else {
+        echo "Invalid username or password.";
+    }
+}
+?>
+<h2>Login with Remember Me</h2>
+<p><b>Demo Username:</b> student <br><b>Demo Password:</b> 12345</p>
+<form method="POST">
+    Username: <input type="text" name="user" required>
+    Password: <input type="password" name="pass" required>
+    <input type="checkbox" name="remember"> Remember my login for 7 days
+    <button type="submit" name="login">Login</button>
+</form>
+
+
+Practical 5
+index.php
+<?php
+$conn = new mysqli("localhost", "root", "", "awt_practical5");
+
+if (isset($_POST['register'])) {
+    $n = $_POST['name']; 
+	$e = $_POST['email']; 
+    $p = $_POST['phone']; 
+	$c = $_POST['city'];
+    
+    $sql = "INSERT INTO users (name, email, phone, city) VALUES ('$n', '$e', '$p', '$c')";
+    if ($conn->query($sql) === TRUE) {
+        echo "<div>User registered successfully.</div>";
+    } else {
+        echo "<div>Error or Email already exists.</div>";
+    }
+}
+?>
+<h2>User Registration Form</h2>
+<form method="POST">
+    <label>Name</label><br><input type="text" name="name" required><br><br>
+    <label>Email</label><br><input type="email" name="email" required><br><br>
+    <label>Phone</label><br><input type="text" name="phone" required><br><br>
+    <label>City</label><br><input type="text" name="city" required><br><br>
+    <button type="submit" name="register">Register User</button>
+</form>
+<br><a href="users.php">View Registered Users</a>
+
+users.php
+<?php
+$conn = new mysqli("localhost", "root", "", "awt_practical5");
+$result = $conn->query("SELECT * FROM users ORDER BY id DESC");
+?>
+<h2>Registered Users</h2>
+<table>
+    <tr>
+        <th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Registered On</th>
+    </tr>
+    <?php if($result->num_rows > 0): while($row = $result->fetch_assoc()): ?>
+    <tr>
+        <td><?=$row['id']?></td>
+        <td><?=$row['name']?></td>
+        <td><?=$row['email']?></td>
+        <td><?=$row['phone']?></td>
+        <td><?=$row['city']?></td>
+        <td><?=$row['created_at']?></td>
+    </tr>
+    <?php endwhile; else: ?>
+    <tr><td colspan="6">No users registered yet.</td></tr>
+    <?php endif; ?>
+</table>
+<br><a href="index.php">Back to Registration Form</a>
